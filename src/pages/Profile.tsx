@@ -21,7 +21,7 @@ import {
   Settings,
   Camera,
 } from "lucide-react";
-import Galaxy from "@/components/ui/Galaxy/Galaxy";
+// import Galaxy from "@/components/ui/Galaxy/Galaxy"; // O'chirildi!
 
 const formatPhoneNumber = (phone: string) => {
   const cleaned = phone.replace(/\D/g, "");
@@ -111,15 +111,12 @@ export default function Profile() {
     try {
       let newAvatarUrl = editForm.avatar_url;
       
-      // Avatar yuklash (agar yangi fayl tanlangan bo'lsa)
       if (avatarFile) {
         newAvatarUrl = await uploadAvatar(user.id);
       }
 
-      // Telefon raqamni formatlash
       const formattedPhone = editForm.phone ? formatPhoneNumber(editForm.phone) : null;
 
-      // Ma'lumotlarni yangilash
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -135,10 +132,8 @@ export default function Profile() {
         throw error;
       }
 
-      // Profilni yangilash
       await refreshProfile();
       
-      // Editing rejimidan chiqish
       setIsEditing(false);
       setAvatarFile(null);
       
@@ -195,8 +190,8 @@ export default function Profile() {
   return (
     <div className="min-h-screen w-full relative overflow-hidden pb-20 bg-[#0A122A]">
       
-      {/* Galaxy Fon */}
-      <div className="absolute top-0 left-0 w-full h-full z-0 opacity-50">
+      {/* Galaxy Fon o'chirildi */}
+      {/* <div className="absolute top-0 left-0 w-full h-full z-0 opacity-50">
         <Galaxy 
           mouseInteraction={false}
           density={1.5}
@@ -205,16 +200,13 @@ export default function Profile() {
           saturation={0.0}
           transparent={true} 
         />
-      </div>
+      </div> */}
 
-      {/* Content */}
       <div className="relative z-10">
         
-        {/* Header */}
         <header className="pt-12 pb-6 px-4">
           <div className="flex flex-col items-center text-center">
             
-            {/* Avatar */}
             <div className="relative mb-4">
               <Avatar className="w-24 h-24 border-2 border-blue-500/50 shadow-lg">
                 <AvatarImage 
@@ -244,12 +236,10 @@ export default function Profile() {
               )}
             </div>
             
-            {/* Username */}
             <h1 className="text-2xl font-bold text-white mb-1">
               {profile?.username || "Foydalanuvchi"}
             </h1>
             
-            {/* Admin Badge */}
             {isAdmin && (
               <div className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 rounded-full border border-blue-500/50">
                 <Shield className="h-3 w-3 text-blue-400" />
@@ -259,7 +249,6 @@ export default function Profile() {
           </div>
         </header>
 
-        {/* Profile Info Card */}
         <section className="px-4">
           <Card className="border-0 shadow-lg bg-black/30 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -304,7 +293,6 @@ export default function Profile() {
             
             <CardContent className="space-y-4">
               
-              {/* Username */}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center border border-blue-500/50">
                   <User className="h-5 w-5 text-blue-400" />
@@ -329,7 +317,6 @@ export default function Profile() {
 
               <Separator className="bg-gray-700/50" />
 
-              {/* Phone */}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center border border-blue-500/50">
                   <Phone className="h-5 w-5 text-blue-400" />
@@ -354,7 +341,6 @@ export default function Profile() {
 
               <Separator className="bg-gray-700/50" />
 
-              {/* Created Date */}
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center border border-blue-500/50">
                   <Calendar className="h-5 w-5 text-blue-400" />
@@ -372,7 +358,6 @@ export default function Profile() {
           </Card>
         </section>
 
-        {/* Action Buttons */}
         <section className="px-4 mt-4 space-y-2">
           {isAdmin && (
             <Button

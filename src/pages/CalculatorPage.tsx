@@ -30,7 +30,6 @@ import {
   Euro,
   Users,
 } from "lucide-react";
-import Galaxy from "@/components/ui/Galaxy/Galaxy";
 
 interface Calculation {
   id: string;
@@ -83,7 +82,6 @@ export default function CalculatorPage() {
   const [toCurrency, setToCurrency] = useState("UZS");
   const [convertedValue, setConvertedValue] = useState("");
 
-  // DEBUG: isAdmin qiymatini konsolga chiqarish
   useEffect(() => {
     console.log("🔍 DEBUG - User:", user?.id);
     console.log("🔍 DEBUG - isAdmin:", isAdmin);
@@ -121,7 +119,6 @@ export default function CalculatorPage() {
     }
   };
 
-  // Calculator
   const handleNumber = (num: string) => {
     if (display === "0" || display === "Xatolik") {
       setDisplay(num);
@@ -154,7 +151,6 @@ export default function CalculatorPage() {
     setDisplay(display.slice(0, -1) || "0");
   };
 
-  // Expense
   const saveExpense = async () => {
     if (!user || !amount) {
       toast({
@@ -193,7 +189,6 @@ export default function CalculatorPage() {
     }
   };
 
-  // Converter
   const handleConvert = () => {
     if (!convertAmount) {
       toast({
@@ -275,17 +270,6 @@ export default function CalculatorPage() {
   return (
     <div className="min-h-screen w-full relative overflow-hidden pb-20 bg-[#0A122A]">
       
-      <div className="absolute top-0 left-0 w-full h-full z-0 opacity-50">
-        <Galaxy 
-          mouseInteraction={false}
-          density={1.5}
-          glowIntensity={0.8} 
-          hueShift={0}
-          saturation={0.0}
-          transparent={true} 
-        />
-      </div>
-
       <div className="relative z-10">
 
         <header className="pt-12 pb-6 px-4">
@@ -295,7 +279,6 @@ export default function CalculatorPage() {
               <p className="text-gray-400 text-sm mt-1">Hisoblagich va Xarajatlar</p>
             </div>
             
-            {/* DEBUG tugmasi - doim ko'rsatiladi */}
             <div className="flex flex-col gap-2">
               <div className="text-xs text-gray-400 text-right">
                 Admin: {isAdmin ? "✅ HA" : "❌ YO'Q"}
@@ -310,7 +293,6 @@ export default function CalculatorPage() {
                   Admin
                 </Button>
               )}
-              {/* Vaqtinchalik test tugmasi - har doim ko'rsatiladi */}
               <Button
                 size="sm"
                 variant="outline"
@@ -345,7 +327,6 @@ export default function CalculatorPage() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Hisoblagich */}
             <TabsContent value="calculator">
               <Card className="border-0 shadow-lg bg-black/30 backdrop-blur-sm">
                 <CardContent className="p-4">
@@ -397,7 +378,6 @@ export default function CalculatorPage() {
               </Card>
             </TabsContent>
 
-            {/* Xarajatlar */}
             <TabsContent value="expenses">
               <Card className="border-0 shadow-lg bg-black/30 backdrop-blur-sm mb-4">
                 <CardHeader className="pb-3">
@@ -505,7 +485,7 @@ export default function CalculatorPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-white">
-                            {calc.amount} {curr?.flag} {calc.currency}
+                            {calc.amount} {curr?.flag} {curr?.code}
                           </p>
                           <p className="text-xs text-gray-400 truncate">
                             {calc.description || cat?.label}
@@ -526,7 +506,6 @@ export default function CalculatorPage() {
               </div>
             </TabsContent>
 
-            {/* Valyuta Konvertori */}
             <TabsContent value="converter">
               <Card className="border-0 shadow-lg bg-black/30 backdrop-blur-sm">
                 <CardHeader className="pb-3">
@@ -609,7 +588,6 @@ export default function CalculatorPage() {
                     Hisoblash
                   </Button>
 
-                  {/* Kurs ma'lumoti */}
                   {convertAmount && convertedValue && (
                     <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-3 text-center">
                       <p className="text-xs text-gray-400">Joriy kurs</p>

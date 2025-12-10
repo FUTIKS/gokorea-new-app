@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { 
   Users, 
   Activity, 
@@ -34,7 +34,6 @@ export default function Admin() {
     recentUsers: [],
   });
 
-  // Orqaga qaytish funksiyasi
   const goBack = () => {
     window.history.back();
   };
@@ -42,16 +41,8 @@ export default function Admin() {
   return (
     <div className="min-h-screen w-full relative overflow-hidden pb-20 bg-gradient-to-br from-[#0A122A] via-[#1a1a3e] to-[#0A122A]">
       
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -top-20 -left-20 animate-pulse"></div>
-        <div className="absolute w-96 h-96 bg-purple-500/10 rounded-full blur-3xl -bottom-20 -right-20 animate-pulse delay-1000"></div>
-      </div>
-
-      {/* Content */}
       <div className="relative z-10">
         
-        {/* Header */}
         <header className="pt-12 pb-6 px-4">
           <div className="flex items-center gap-3 mb-4">
             <button
@@ -67,7 +58,6 @@ export default function Admin() {
           </div>
         </header>
 
-        {/* Texnik Ishlar Xabari */}
         <section className="px-4 mb-6">
           <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/50 rounded-2xl p-6 backdrop-blur-sm">
             <div className="flex items-start gap-4">
@@ -91,10 +81,8 @@ export default function Admin() {
           </div>
         </section>
 
-        {/* Stats Cards - Disabled State */}
         <section className="px-4 space-y-3 opacity-50 pointer-events-none">
           
-          {/* Jami Foydalanuvchilar */}
           <div className="border-0 shadow-lg bg-gradient-to-br from-blue-600/20 to-blue-800/20 backdrop-blur-sm border border-blue-500/30 rounded-xl">
             <div className="p-4 flex items-center gap-4">
               <div className="w-14 h-14 rounded-xl bg-blue-600/40 flex items-center justify-center border border-blue-500/50">
@@ -107,10 +95,8 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Statistics Grid */}
           <div className="grid grid-cols-2 gap-3">
             
-            {/* Bugun Aktiv */}
             <div className="border-0 shadow-lg bg-gradient-to-br from-green-600/20 to-green-800/20 backdrop-blur-sm border border-green-500/30 rounded-xl">
               <div className="p-4">
                 <div className="w-10 h-10 rounded-lg bg-green-600/40 flex items-center justify-center border border-green-500/50 mb-3">
@@ -121,7 +107,6 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Haftalik Yangi */}
             <div className="border-0 shadow-lg bg-gradient-to-br from-purple-600/20 to-purple-800/20 backdrop-blur-sm border border-purple-500/30 rounded-xl">
               <div className="p-4">
                 <div className="w-10 h-10 rounded-lg bg-purple-600/40 flex items-center justify-center border border-purple-500/50 mb-3">
@@ -132,7 +117,6 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Oylik Yangi */}
             <div className="border-0 shadow-lg bg-gradient-to-br from-orange-600/20 to-orange-800/20 backdrop-blur-sm border border-orange-500/30 rounded-xl">
               <div className="p-4">
                 <div className="w-10 h-10 rounded-lg bg-orange-600/40 flex items-center justify-center border border-orange-500/50 mb-3">
@@ -143,7 +127,6 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* O'sish Sur'ati */}
             <div className="border-0 shadow-lg bg-gradient-to-br from-cyan-600/20 to-cyan-800/20 backdrop-blur-sm border border-cyan-500/30 rounded-xl">
               <div className="p-4">
                 <div className="w-10 h-10 rounded-lg bg-cyan-600/40 flex items-center justify-center border border-cyan-500/50 mb-3">
@@ -156,7 +139,6 @@ export default function Admin() {
           </div>
         </section>
 
-        {/* So'nggi Foydalanuvchilar - Disabled */}
         <section className="px-4 mt-6 opacity-50 pointer-events-none">
           <h2 className="text-sm font-semibold text-gray-400 uppercase mb-3 flex items-center gap-2">
             <UserCheck className="h-4 w-4" />
@@ -187,7 +169,6 @@ export default function Admin() {
           </div>
         </section>
 
-        {/* Orqaga Qaytish Tugmasi */}
         <section className="px-4 mt-6">
           <button
             onClick={goBack}
@@ -198,7 +179,6 @@ export default function Admin() {
           </button>
         </section>
 
-        {/* Footer Info */}
         <section className="px-4 mt-6 text-center">
           <p className="text-xs text-gray-500">
             Admin funksiyalari tez orada faollashtiriladi
