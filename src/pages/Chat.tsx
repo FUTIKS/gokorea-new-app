@@ -55,28 +55,16 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
       details: `
     Tashkil topgan: 1979 | Talabalar soni: ~12,000
 
-    📖 **Tavsif:** Jeonju shahri yaqinida joylashgan, zamonaviy kampus va qulay ta'lim sharoitlariga ega universitet. Xalqaro talabalar uchun maxsus dasturlar va yotoqxona sharoitlari mavjud.
-
     ✨ **Asosiy Yo'nalishlar:** Biznes va Menejment, Turizm va Mehmondo'stlik, Xalqaro Munosabatlar, IT va Kompyuter Fanlari, Muhandislik, Farmatsevtika.
 
     🏠 **Yotoqxona:** $380 - $620 / semestr
 
     ⭐ **Afzalliklari:**
     - Past narx va qulay yashash sharoiti
-    - Xalqaro talabalar uchun **stipendiya (10-50%)**
-    - Zamonaviy yotoqxonalar (Wi-Fi, sport zal)
     - 3 yillik Turizm dasturi mavjud
     - Part-time ish imkoniyati
 
     **Qabul:** Standart hujjat (Intervyu yo'q)
-    
-    ---
-    
-    📍 **Jeonju (Wanju County) shahri haqida:**
-    Janubiy Koreyaning an'anaviy madaniy markazi. Tarixiy joy va zamonaviy universitetlar shahri. Seuldan 2 soat masofada.
-    
-    🌡️ **Iqlim:** 4 fasl iqlimi, yoz issiq, qish sovuq.
-    💰 **Oylik xarajat:** $600 - $900 / oy (yashash, ovqat, transport)
     
     📌 **Universitet manzili:** 66 Daehak-ro, Wanju-gun, Jeollabuk-do, South Korea
   ` 
@@ -104,14 +92,6 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
     - 94 ta universitetlar bilan hamkorlik dasturlari
 
     **Qabul:** Intervyu asosida qabul (Imtihon yo'q)
-    
-    ---
-    
-    📍 **Busan shahri haqida:**
-    Janubiy Koreyaning 2-chi shahri, dengiz porti va mashhur plyajlari bor. Zamonaviy shahar, yillik xalqaro film festivali o'tkaziladi.
-    
-    🌡️ **Iqlim:** Iliq dengiz iqlimi, qish yumshoq.
-    💰 **Oylik xarajat:** $700 - $1,000 / oy
     
     📌 **Universitet manzili:** 65 Geumsaem-ro 485beon-gil, Geumjeong-gu, Busan, South Korea
   ` 
