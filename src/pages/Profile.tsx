@@ -21,7 +21,6 @@ import {
   Settings,
   Camera,
 } from "lucide-react";
-// import Galaxy from "@/components/ui/Galaxy/Galaxy"; // O'chirildi!
 
 const formatPhoneNumber = (phone: string) => {
   const cleaned = phone.replace(/\D/g, "");
@@ -173,10 +172,10 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A122A]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-blue-400 text-sm">Yuklanmoqda...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 border-4 border-[#6366f1] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-white text-base font-medium">Yuklanmoqda...</p>
         </div>
       </div>
     );
@@ -188,198 +187,203 @@ export default function Profile() {
   const displayAvatar = previewUrl || profile?.avatar_url || "";
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden pb-20 bg-[#0A122A]">
+    <div className="min-h-screen w-full pb-20 bg-[#0f172a]">
       
-      {/* Galaxy Fon o'chirildi */}
-      {/* <div className="absolute top-0 left-0 w-full h-full z-0 opacity-50">
-        <Galaxy 
-          mouseInteraction={false}
-          density={1.5}
-          glowIntensity={0.8} 
-          hueShift={0}
-          saturation={0.0}
-          transparent={true} 
-        />
-      </div> */}
-
-      <div className="relative z-10">
-        
-        <header className="pt-12 pb-6 px-4">
-          <div className="flex flex-col items-center text-center">
-            
-            <div className="relative mb-4">
-              <Avatar className="w-24 h-24 border-2 border-blue-500/50 shadow-lg">
+      {/* Header Section */}
+      <header className="pt-16 pb-12 px-6">
+        <div className="flex flex-col items-center text-center">
+          
+          {/* Avatar with Glow Effect */}
+          <div className="relative mb-6">
+            <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] opacity-50 blur-xl"></div>
+            <div className="relative">
+              <Avatar className="w-32 h-32 border-4 border-[#1e293b] shadow-2xl ring-4 ring-[#6366f1]/30">
                 <AvatarImage 
                   src={displayAvatar} 
                   alt={profile?.username || "Avatar"}
+                  className="object-cover"
                 />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] text-white text-4xl font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              
-              {isEditing && (
-                <Label 
-                  htmlFor="avatar-upload" 
-                  className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center cursor-pointer border-2 border-white shadow-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Camera className="h-4 w-4 text-white" />
-                  <Input 
-                    id="avatar-upload" 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleAvatarChange} 
-                    className="hidden"
-                    disabled={isSaving}
-                  />
-                </Label>
-              )}
             </div>
             
-            <h1 className="text-2xl font-bold text-white mb-1">
-              {profile?.username || "Foydalanuvchi"}
-            </h1>
+            {isEditing && (
+              <Label 
+                htmlFor="avatar-upload" 
+                className="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-[#6366f1] flex items-center justify-center cursor-pointer border-3 border-[#1e293b] shadow-xl hover:bg-[#5558e3] transition-all duration-300"
+              >
+                <Camera className="h-5 w-5 text-white" />
+                <Input 
+                  id="avatar-upload" 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleAvatarChange} 
+                  className="hidden"
+                  disabled={isSaving}
+                />
+              </Label>
+            )}
+          </div>
+          
+          {/* Name */}
+          <h1 className="text-3xl font-bold text-white mb-2">
+            {profile?.username || "Foydalanuvchi"}
+          </h1>
+          
+          {/* Admin Badge */}
+          {isAdmin && (
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-yellow-500/20 rounded-full border border-yellow-500/50">
+              <Shield className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm font-semibold text-yellow-500">Admin</span>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Profile Information Card */}
+      <section className="px-6">
+        <div className="bg-[#1e293b] rounded-2xl overflow-hidden">
+          
+          {/* Card Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#334155]">
+            <h2 className="text-lg font-semibold text-white">Profil Ma'lumotlari</h2>
             
-            {isAdmin && (
-              <div className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 rounded-full border border-blue-500/50">
-                <Shield className="h-3 w-3 text-blue-400" />
-                <span className="text-xs font-medium text-blue-400">Admin</span>
+            {!isEditing ? (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsEditing(true)} 
+                className="h-9 px-4 text-[#6366f1] hover:text-[#6366f1] hover:bg-[#6366f1]/10 flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Tahrirlash
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancel}
+                  disabled={isSaving}
+                  className="h-9 px-3 text-gray-400 hover:text-white hover:bg-[#334155]"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="h-9 px-4 bg-[#6366f1] hover:bg-[#5558e3] text-white"
+                >
+                  {isSaving ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Check className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
             )}
           </div>
-        </header>
-
-        <section className="px-4">
-          <Card className="border-0 shadow-lg bg-black/30 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-base text-gray-200">Profil Ma'lumotlari</CardTitle>
-              
-              {!isEditing ? (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setIsEditing(true)} 
-                  className="h-8 px-3 hover:bg-blue-500/20 text-blue-400"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Tahrirlash
-                </Button>
-              ) : (
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCancel}
-                    disabled={isSaving}
-                    className="h-8 px-3 hover:bg-red-500/20 text-red-400"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="h-8 px-3 bg-blue-600 hover:bg-blue-700"
-                  >
-                    {isSaving ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <Check className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              )}
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center border border-blue-500/50">
-                  <User className="h-5 w-5 text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400">Ism Familiya</p>
-                  {isEditing ? (
-                    <Input
-                      value={editForm.username}
-                      onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                      placeholder="Ismingizni kiriting"
-                      className="mt-1 h-9 bg-black/40 border-gray-700 text-white"
-                      disabled={isSaving}
-                    />
-                  ) : (
-                    <p className="font-medium text-white mt-0.5">
-                      {profile?.username || "Kiritilmagan"}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <Separator className="bg-gray-700/50" />
-
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center border border-blue-500/50">
-                  <Phone className="h-5 w-5 text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400">Telefon Raqami</p>
-                  {isEditing ? (
-                    <Input
-                      value={editForm.phone}
-                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                      placeholder="+998 XX XXX XX XX"
-                      className="mt-1 h-9 bg-black/40 border-gray-700 text-white"
-                      disabled={isSaving}
-                    />
-                  ) : (
-                    <p className="font-medium text-white mt-0.5">
-                      {profile?.phone || "Kiritilmagan"}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <Separator className="bg-gray-700/50" />
-
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center border border-blue-500/50">
-                  <Calendar className="h-5 w-5 text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs text-gray-400">Ro'yxatdan O'tilgan</p>
-                  <p className="font-medium text-white mt-0.5">
-                    {profile?.created_at 
-                      ? new Date(profile.created_at).toLocaleDateString('uz-UZ')
-                      : "Noma'lum"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="px-4 mt-4 space-y-2">
-          {isAdmin && (
-            <Button
-              variant="outline"
-              className="w-full h-12 justify-start bg-black/30 border-blue-500/50 text-blue-400 hover:bg-black/50"
-              onClick={() => navigate("/admin")}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Admin Panel
-            </Button>
-          )}
           
+          {/* Card Content */}
+          <div className="p-6 space-y-5">
+            
+            {/* Username Field */}
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#334155] flex items-center justify-center flex-shrink-0">
+                <User className="h-6 w-6 text-[#6366f1]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-400 mb-1.5">Ism Familiya</p>
+                {isEditing ? (
+                  <Input
+                    value={editForm.username}
+                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                    placeholder="Ismingizni kiriting"
+                    className="h-11 bg-[#0f172a] border-[#334155] text-white focus:border-[#6366f1] focus:ring-0"
+                    disabled={isSaving}
+                  />
+                ) : (
+                  <p className="font-semibold text-white text-lg">
+                    {profile?.username || "Kiritilmagan"}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <Separator className="bg-[#334155]" />
+
+            {/* Phone Field */}
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#334155] flex items-center justify-center flex-shrink-0">
+                <Phone className="h-6 w-6 text-[#6366f1]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-400 mb-1.5">Telefon Raqami</p>
+                {isEditing ? (
+                  <Input
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    placeholder="+998 XX XXX XX XX"
+                    className="h-11 bg-[#0f172a] border-[#334155] text-white focus:border-[#6366f1] focus:ring-0"
+                    disabled={isSaving}
+                  />
+                ) : (
+                  <p className="font-semibold text-white text-lg">
+                    {profile?.phone || "Kiritilmagan"}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <Separator className="bg-[#334155]" />
+
+            {/* Registration Date */}
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#334155] flex items-center justify-center flex-shrink-0">
+                <Calendar className="h-6 w-6 text-[#6366f1]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-400 mb-1.5">Ro'yxatdan O'tilgan</p>
+                <p className="font-semibold text-white text-lg">
+                  {profile?.created_at 
+                    ? new Date(profile.created_at).toLocaleDateString('uz-UZ')
+                    : "Noma'lum"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Action Buttons */}
+      <section className="px-6 mt-6 space-y-3">
+        {isAdmin && (
           <Button
-            variant="destructive"
-            className="w-full h-12 justify-start bg-red-600/80 hover:bg-red-700/90"
-            onClick={handleSignOut}
+            variant="outline"
+            className="w-full h-14 justify-start bg-[#1e293b] border-[#334155] text-white hover:bg-[#334155] transition-colors"
+            onClick={() => navigate("/admin")}
           >
-            <LogOut className="h-4 w-4 mr-2" />
-            Tizimdan Chiqish
+            <div className="w-11 h-11 rounded-lg bg-[#334155] flex items-center justify-center mr-3">
+              <Settings className="h-5 w-5 text-[#6366f1]" />
+            </div>
+            <span className="text-base font-medium">Admin Panel</span>
           </Button>
-        </section>
-      </div>
+        )}
+        
+        <Button
+          variant="outline"
+          className="w-full h-14 justify-start bg-[#dc2626] border-[#dc2626] text-white hover:bg-[#b91c1c] transition-colors"
+          onClick={handleSignOut}
+        >
+          <div className="w-11 h-11 rounded-lg bg-white/10 flex items-center justify-center mr-3">
+            <LogOut className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-base font-medium">Tizimdan Chiqish</span>
+        </Button>
+      </section>
     </div>
   );
 }
