@@ -78,8 +78,6 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
       details: `
     Tashkil topgan: 1981 | Talabalar soni: ~8,500
 
-    📖 **Tavsif:** Janubiy Koreyaning 2-chi eng yirik shahri Busanda joylashgan, xorijiy tillar va xalqaro munosabatlarga ixtisoslashgan universitet. 20 dan ortiq til o'rgatiladi.
-
     ✨ **Asosiy Yo'nalishlar:** Xorijiy Tillar (20+ til), Xalqaro Munosabatlar, Tarjimonlik va Tarjima, Xalqaro Biznes, IT va Dasturlash, Turizm va Mehmondo'stlik.
 
     🏠 **Yotoqxona:** $800 - $1,200 / semestr
@@ -87,7 +85,6 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
     ⭐ **Afzalliklari:**
     - **20+ til kurslari** mavjud
     - Dengiz bo'yida joylashgan go'zal shahar
-    - Xalqaro talabalar uchun stipendiya
     - **Intervyu asosida qabul** (imtihon yo'q)
     - 94 ta universitetlar bilan hamkorlik dasturlari
 
@@ -105,8 +102,6 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
       details: `
     Tashkil topgan: 1994 | Talabalar soni: ~14,000
 
-    📖 **Tavsif:** Cheonan shahridagi xususiy xristian universiteti. Ijtimoiy fanlar, biznes va muhandislik yo'nalishlari kuchli rivojlangan. Zamonaviy kampus va yaxshi jihozlangan laboratoriyalar.
-
     ✨ **Asosiy Yo'nalishlar:** Biznes Administratsiya, Muhandislik (Mexanika, Elektr), Ijtimoiy Fanlar, Pedagogika, Musiqiy Ta'lim, Kompyuter Injiniring.
 
     🏠 **Yotoqxona:** $600 - $900 / semestr
@@ -114,19 +109,9 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
     ⭐ **Afzalliklari:**
     - Seulga 1 soat masofada
     - Zamonaviy kampus va laboratoriyalar
-    - Xristian qadriyatlarga asoslangan ta'lim
     - Arzon yashash xarajatlari
-    - Xalqaro talabalar uchun qo'llab-quvvatlash
 
     **Qabul:** Standart hujjat
-    
-    ---
-    
-    📍 **Cheonan shahri haqida:**
-    O'rta Janubiy Koreyada joylashgan tez rivojlanayotgan shahar. Seul va boshqa yirik shaharlar o'rtasida qulay joylashgan.
-    
-    🌡️ **Iqlim:** 4 fasl iqlimi, mo'tadil.
-    💰 **Oylik xarajat:** $600 - $850 / oy
     
     📌 **Universitet manzili:** 76 Munam-ro, Dongnam-gu, Cheonan-si, Chungcheongnam-do, South Korea
   ` 
@@ -140,8 +125,6 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
       details: `
     Tashkil topgan: 1991 | Talabalar soni: ~3,500
 
-    📖 **Tavsif:** Daegu shahri yaqinida, tinch va qulay muhitda joylashgan kichik universitet. Shaxsiy yondashuv va yaxshi ta'lim sifati.
-
     ✨ **Asosiy Yo'nalishlar:** Ijtimoiy Fanlar, Teologiya, Musiqiy Ta'lim, Bolalar Rivojlanishi, Sport va Jismoniy Tarbiya, Ofisiant va Mehmondo'stlik.
 
     🏠 **Yotoqxona:** $500 - $750 / semestr
@@ -150,18 +133,9 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
     - Tinch shahar, yashash arzon
     - Kichik kampus, individual e'tibor
     - **Intervyu asosida qabul**
-    - Daegu shahriga yaqin (30 daqiqa)
     - Qulay yotoqxona narxlari
 
     **Qabul:** Intervyu asosida qabul
-    
-    ---
-    
-    📍 **Gyeongsan (Daegu yaqinida) shahri haqida:**
-    Gyeongsan - Daegu metropoliyasi qismida. Tinch universitetlar shahri. Daegu - Janubiy Koreyaning 3-chi yirik shahri.
-    
-    🌡️ **Iqlim:** 4 fasl, issiq yoz.
-    💰 **Oylik xarajat:** $550 - $800 / oy
     
     📌 **Universitet manzili:** 39 Daeshin-ro, Gyeongsan-si, Gyeongsangbuk-do, South Korea
   ` 
@@ -175,28 +149,16 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
       details: `
     Tashkil topgan: 1962 | Talabalar soni: ~7,000
 
-    📖 **Tavsif:** Seulga juda yaqin (30 daqiqa) Anyang shahridagi xususiy xristian universiteti. Kichik kampus va talabalar bilan yaqin munosabatlar.
-
     ✨ **Asosiy Yo'nalishlar:** Koreys Tili va Adabiyoti, Xalqaro Munosabatlar, Biznes va Iqtisod, Ijtimoiy Ish, Tarix va Madaniyat, Media va Kommunikatsiya.
 
-    🏠 **Yotoqxona:** $700 - $1,000 / semestr
+    🏠 **Yotoqxona:** $700 - $1,000 / 1 semestr
 
     ⭐ **Afzalliklari:**
-    - **Seulga 30 daqiqa (metro)**
     - Kichik kampus, shaxsiy yondashuv
     - Arzon turar joylar atrofida
-    - Xristian qadriyatlar
     - Yaxshi transport aloqasi
 
     **Qabul:** Standart hujjat
-    
-    ---
-    
-    📍 **Anyang shahri haqida:**
-    Seul yaqinidagi zamonaviy shahar. Metropolitan hududida, poytaxtga tez yetib borish mumkin. Tinch va qulay yashash uchun.
-    
-    🌡️ **Iqlim:** Seul bilan bir xil, 4 fasl.
-    💰 **Oylik xarajat:** $650 - $900 / oy
     
     📌 **Universitet manzili:** 53 Sungkyuldaehak-ro, Manan-gu, Anyang-si, Gyeonggi-do, South Korea
   ` 
@@ -209,8 +171,6 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
       image: "/images/singyeongju.jpg", 
       details: `
     Tashkil topgan: 1994 | Talabalar soni: ~4,000
-
-    📖 **Tavsif:** Koreyaning tarixiy poytaxti Gyeongjuda joylashgan. UNESCO merosi va qadimiy madaniyatni o'rganish uchun ajoyib joy.
 
     ✨ **Asosiy Yo'nalishlar:** Tarix va Arxeologiya, Turizm va Madaniyat, Hotel Menejment, Koreys Madaniyati, Biznes Administratsiya, Sport Menejmenti.
 
@@ -225,14 +185,6 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
 
     **Qabul:** Standart hujjat
     
-    ---
-    
-    📍 **Gyeongju shahri haqida:**
-    Qadimgi Silla sultonligining poytaxti (UNESCO merosi). Muzeygina shahar, tarixiy yodgorliklar va madaniy merosga boy.
-    
-    🌡️ **Iqlim:** Iliq iqlim, dengizga yaqin.
-    💰 **Oylik xarajat:** $600 - $850 / oy
-    
     📌 **Universitet manzili:** 188 Taejong-ro, Gyeongju-si, Gyeongsangbuk-do, South Korea
   ` 
     },
@@ -245,28 +197,17 @@ Konsalting Xizmatiga Kiritilganlar: Hujjat topshirish, qabul nazorati, viza olis
       details: `
     Tashkil topgan: 1972 | Talabalar soni: ~6,500
 
-    📖 **Tavsif:** Seul markazida joylashgan, dizayn, IT va biznes yo'nalishlari kuchli rivojlangan universitet. Poytaxtda ta'lim olish imkoniyati.
-
     ✨ **Asosiy Yo'nalishlar:** Dizayn va San'at, IT va Dasturlash, Fashion Dizayn, Biznes va Marketing, Muhandislik, Media va Jurnalistika.
 
-    🏠 **Yotoqxona:** $1,200 - $1,600 / semestr
+    🏠 **Yotoqxona:** $900 - $1.200 / 1 semestr
 
     ⭐ **Afzalliklari:**
     - **Seul markazida** joylashgan
     - Dizayn va IT yo'nalishlari kuchli
     - **Intervyu asosida qabul**
     - Zamonaviy kampus va laboratoriyalar
-    - Katta shahar imkoniyatlari
 
     **Qabul:** Intervyu asosida qabul
-    
-    ---
-    
-    📍 **Seoul shahri haqida:**
-    Janubiy Koreyaning poytaxti va eng yirik shahri. Zamonaviy texnologiya, madaniyat va biznes markazi. Barcha imkoniyatlar mavjud.
-    
-    🌡️ **Iqlim:** 4 fasl, qish sovuq, yoz issiq.
-    💰 **Oylik xarajat:** $900 - $1,400 / oy (Seul qimmatroq)
     
     📌 **Universitet manzili:** 116 Samseongyoro-16-gil, Seongbuk-gu, Seoul, South Korea
   ` 
@@ -281,7 +222,7 @@ Biz **6+ yillik tajribaga** egamiz, **500+ muvaffaqiyatli talaba** va **98% viza
 - **Telefonlar:** +998 33 9391515, +998 97 9481515
 - **Kanal:** [https://t.me/GoKoreaGroup](https://t.me/GoKoreaGroup)
 - **Ish vaqti:** Dushanba-Juma, 9:00 - 18:00
-- **Manzil:** Toshkent sh., Chilonzor tumani`,
+- **Manzil:** улица Шокирарык 97, 100085, Ташкент, Tashkent`,
     operator_text: `Xabaringiz uchun rahmat, men bu savolni tushunmadim. **Xavotir olmang!** Sizni tajribali operatorga yo'naltiraman. Operator yozishingizni kutyapti: **@gokorea_admin** yoki **+998 33 9391515** raqamiga qo'ng'iroq qiling.`,
   },
   faq: {
