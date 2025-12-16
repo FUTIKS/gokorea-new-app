@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -33,8 +34,15 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  Download,
+  FileArchive,
+  FolderPlus,
+  Edit,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import { jsPDF } from "jspdf";
 
 type DocumentType = "passport" | "id_card" | "contract" | "medical" | "diploma" | "reference" | "other";
 type DocumentStatus = "pending" | "approved" | "rejected" | "incomplete";
@@ -49,6 +57,14 @@ interface Document {
   created_at: string;
   admin_notes?: string;
   rejection_reason?: string;
+  folder_name?: string;
+  custom_name?: string;
+}
+
+interface UserFolder {
+  user_id: string;
+  folder_name: string;
+  document_count: number;
 }
 
 const documentTypeLabels: Record<DocumentType, string> = {
@@ -102,12 +118,32 @@ export default function Documents() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [folderDialogOpen, setFolderDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [zipDialogOpen, setZipDialogOpen] = useState(false);
+  
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [selectedType, setSelectedType] = useState<DocumentType>("other");
   const [conversionType, setConversionType] = useState<"jpg-to-pdf" | "doc-to-pdf" | "merge-pdf">("jpg-to-pdf");
   const [isConverting, setIsConverting] = useState(false);
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [missingDocuments, setMissingDocuments] = useState<DocumentType[]>([]);
+  
+  // Papka funksiyalari uchun
+  const [currentFolder, setCurrentFolder] = useState<string>("");
+  const [folderName, setFolderName] = useState<string>("");
+  const [customFileName, setCustomFileName] = useState<string>("");
+  
+  // Status o'zgartirish uchun
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [newStatus, setNewStatus] = useState<DocumentStatus>("pending");
+  const [adminNotes, setAdminNotes] = useState<string>("");
+  
+  // ZIP export uchun
+  const [isExporting, setIsExporting] = useState(false);
+  const [telegramBotToken, setTelegramBotToken] = useState<string>("");
+  const [telegramChatId, setTelegramChatId] = useState<string>("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -119,17 +155,22 @@ export default function Documents() {
     if (user) {
       loadDocuments();
     }
-  }, [user]);
+  }, [user, currentFolder]);
 
   const loadDocuments = async () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("documents")
         .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .eq("user_id", user.id);
+      
+      if (currentFolder) {
+        query = query.eq("folder_name", currentFolder);
+      }
+      
+      const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) throw error;
       const docs = (data as Document[]) || [];
@@ -178,13 +219,32 @@ export default function Documents() {
     }
   };
 
+  const handleMultipleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      // Har bir faylni tekshirish
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].size > 10 * 1024 * 1024) {
+          toast({
+            title: "Fayl juda katta",
+            description: `${files[i].name} - Maksimal fayl hajmi 10MB.`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+      setSelectedFiles(files);
+    }
+  };
+
   const handleUpload = async () => {
     if (!selectedFile || !user) return;
     setIsUploading(true);
 
     try {
       const fileExt = selectedFile.name.split(".").pop();
-      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+      const fileName = customFileName || selectedFile.name;
+      const filePath = `${user.id}${currentFolder ? `/${currentFolder}` : ''}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("documents")
@@ -198,11 +258,13 @@ export default function Documents() {
 
       const { error: dbError } = await supabase.from("documents").insert({
         user_id: user.id,
-        file_name: selectedFile.name,
+        file_name: fileName,
         file_url: publicUrl,
         file_type: selectedType,
         file_size: selectedFile.size,
-        status: "pending"
+        status: "pending",
+        folder_name: currentFolder || null,
+        custom_name: customFileName || null,
       });
 
       if (dbError) throw dbError;
@@ -214,6 +276,7 @@ export default function Documents() {
 
       setUploadDialogOpen(false);
       setSelectedFile(null);
+      setCustomFileName("");
       loadDocuments();
     } catch (error) {
       console.error("Upload error:", error);
@@ -251,24 +314,110 @@ export default function Documents() {
     }
   };
 
+  // JPG to PDF konvertatsiya
+  const convertImageToPDF = async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const pdf = new jsPDF({
+            orientation: img.width > img.height ? 'landscape' : 'portrait',
+            unit: 'px',
+            format: [img.width, img.height]
+          });
+          
+          pdf.addImage(img, 'JPEG', 0, 0, img.width, img.height);
+          const pdfBlob = pdf.output('blob');
+          resolve(pdfBlob);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Multiple PDF merge
+  const mergePDFs = async (files: FileList): Promise<Blob> => {
+    const pdf = new jsPDF();
+    let isFirstPage = true;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (file.type === 'application/pdf') {
+        // PDF fayllarni birlashtirish uchun pdf-lib kerak bo'ladi
+        // Hozircha faqat imagelarni qo'llab-quvvatlaymiz
+        toast({
+          title: "Diqqat",
+          description: "PDF birlashtirishni hozircha qo'llab-quvvatlanmaydi. Faqat rasmlarni PDF ga aylantirish mumkin.",
+          variant: "destructive",
+        });
+        throw new Error("PDF merging not yet implemented");
+      } else if (file.type.startsWith('image/')) {
+        const imgData = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.readAsDataURL(file);
+        });
+
+        const img = new Image();
+        await new Promise((resolve) => {
+          img.onload = resolve;
+          img.src = imgData;
+        });
+
+        if (!isFirstPage) {
+          pdf.addPage([img.width, img.height], img.width > img.height ? 'landscape' : 'portrait');
+        } else {
+          isFirstPage = false;
+        }
+        
+        pdf.addImage(img, 'JPEG', 0, 0, img.width, img.height);
+      }
+    }
+
+    return pdf.output('blob');
+  };
+
   const handleConversion = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile && !selectedFiles) return;
     setIsConverting(true);
 
     try {
-      // Bu yerda real konvertatsiya logikasi bo'lishi kerak
-      // Server-side API ga so'rov yuborish kerak
-      
-      // Hozircha mock implementation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let pdfBlob: Blob;
+      let fileName = "converted.pdf";
+
+      if (conversionType === "jpg-to-pdf" && selectedFile) {
+        pdfBlob = await convertImageToPDF(selectedFile);
+        fileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".pdf";
+      } else if (conversionType === "merge-pdf" && selectedFiles) {
+        pdfBlob = await mergePDFs(selectedFiles);
+        fileName = "merged_" + Date.now() + ".pdf";
+      } else if (conversionType === "doc-to-pdf") {
+        toast({
+          title: "Xatolik",
+          description: "Word to PDF konvertatsiyasi hozircha qo'llab-quvvatlanmaydi. Iltimos, online konverterdan foydalaning.",
+          variant: "destructive",
+        });
+        return;
+      } else {
+        throw new Error("Invalid conversion type");
+      }
+
+      // PDF ni yuklab olish
+      saveAs(pdfBlob, fileName);
       
       toast({
         title: "Konvertatsiya Muvaffaqiyatli",
-        description: `Fayl ${conversionType} formatiga o'zgartirildi.`,
+        description: `Fayl ${fileName} nomi bilan saqlandi.`,
       });
       
       setConvertDialogOpen(false);
       setSelectedFile(null);
+      setSelectedFiles(null);
     } catch (error) {
       console.error("Conversion error:", error);
       toast({
@@ -278,6 +427,148 @@ export default function Documents() {
       });
     } finally {
       setIsConverting(false);
+    }
+  };
+
+  // Papka yaratish
+  const handleCreateFolder = () => {
+    if (!folderName.trim()) {
+      toast({
+        title: "Xatolik",
+        description: "Papka nomini kiriting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCurrentFolder(folderName.trim());
+    setFolderDialogOpen(false);
+    setFolderName("");
+    
+    toast({
+      title: "Papka yaratildi",
+      description: `"${folderName}" papkasi yaratildi.`,
+    });
+  };
+
+  // Admin: Hujjat statusini o'zgartirish
+  const handleUpdateStatus = async () => {
+    if (!selectedDocument || !isAdmin) return;
+
+    try {
+      const updateData: any = {
+        status: newStatus,
+      };
+
+      if (adminNotes.trim()) {
+        if (newStatus === "rejected") {
+          updateData.rejection_reason = adminNotes;
+        } else if (newStatus === "incomplete") {
+          updateData.admin_notes = adminNotes;
+        }
+      }
+
+      const { error } = await supabase
+        .from("documents")
+        .update(updateData)
+        .eq("id", selectedDocument.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Yangilandi",
+        description: "Hujjat holati yangilandi.",
+      });
+
+      setStatusDialogOpen(false);
+      setSelectedDocument(null);
+      setAdminNotes("");
+      loadDocuments();
+    } catch (error) {
+      console.error("Update status error:", error);
+      toast({
+        title: "Xatolik",
+        description: "Holatni yangilashda xatolik yuz berdi.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // ZIP export va Telegram botga yuborish
+  const handleExportZIP = async () => {
+    if (documents.length === 0) {
+      toast({
+        title: "Hujjatlar yo'q",
+        description: "Export qilish uchun hujjatlar mavjud emas.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder(currentFolder || "Documents");
+
+      // Har bir hujjatni ZIP ga qo'shish
+      for (const doc of documents) {
+        try {
+          const response = await fetch(doc.file_url);
+          const blob = await response.blob();
+          const fileName = doc.custom_name || doc.file_name;
+          folder?.file(fileName, blob);
+        } catch (error) {
+          console.error(`Error fetching ${doc.file_name}:`, error);
+        }
+      }
+
+      // ZIP ni generatsiya qilish
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const zipFileName = `${currentFolder || 'documents'}_${Date.now()}.zip`;
+
+      // Agar Telegram bot token va chat ID berilgan bo'lsa, botga yuborish
+      if (telegramBotToken && telegramChatId) {
+        const formData = new FormData();
+        formData.append('chat_id', telegramChatId);
+        formData.append('document', zipBlob, zipFileName);
+
+        const response = await fetch(
+          `https://api.telegram.org/bot${telegramBotToken}/sendDocument`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Telegram botga yuborishda xatolik');
+        }
+
+        toast({
+          title: "Muvaffaqiyat",
+          description: "Hujjatlar ZIP qilib Telegram botga yuborildi.",
+        });
+      } else {
+        // Faqat yuklab olish
+        saveAs(zipBlob, zipFileName);
+        
+        toast({
+          title: "Yuklab olindi",
+          description: `${documents.length} ta hujjat ZIP qilindi.`,
+        });
+      }
+
+      setZipDialogOpen(false);
+    } catch (error) {
+      console.error("Export error:", error);
+      toast({
+        title: "Xatolik",
+        description: "ZIP export qilishda xatolik yuz berdi.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -293,8 +584,24 @@ export default function Documents() {
     <div className="min-h-screen w-full text-white pb-24">
       {/* Header */}
       <header className="pt-16 pb-6 px-4">
-        <h1 className="text-2xl font-bold text-white">Hujjatlarni Boshqarish</h1>
-        <p className="text-gray-400 mt-1">Fayllaringizni boshqaring va konvertatsiya qiling</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Hujjatlarni Boshqarish</h1>
+            <p className="text-gray-400 mt-1">
+              {currentFolder ? `Papka: ${currentFolder}` : "Fayllaringizni boshqaring va konvertatsiya qiling"}
+            </p>
+          </div>
+          {currentFolder && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentFolder("")}
+              className="text-blue-400 hover:text-blue-300"
+            >
+              Asosiy sahifa
+            </Button>
+          )}
+        </div>
       </header>
 
       {/* Completion Progress */}
@@ -336,6 +643,21 @@ export default function Documents() {
           Amallar
         </h2>
         <div className="grid grid-cols-2 gap-3">
+          {isAdmin && (
+            <Card
+              className="border-0 shadow-lg bg-black/30 backdrop-blur-sm hover:shadow-xl transition-all cursor-pointer animate-fade-in"
+              onClick={() => setFolderDialogOpen(true)}
+            >
+              <CardContent className="p-4 text-center">
+                <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-purple-600/20 flex items-center justify-center border border-purple-600/50">
+                  <FolderPlus className="h-6 w-6 text-purple-400" />
+                </div>
+                <h3 className="font-semibold text-sm text-white">Papka Yaratish</h3>
+                <p className="text-xs text-gray-400">Foydalanuvchi papkasi</p>
+              </CardContent>
+            </Card>
+          )}
+
           <Card
             className="border-0 shadow-lg bg-black/30 backdrop-blur-sm hover:shadow-xl transition-all cursor-pointer animate-fade-in"
             onClick={() => setConvertDialogOpen(true)}
@@ -345,7 +667,7 @@ export default function Documents() {
                 <FileImage className="h-6 w-6 text-blue-400" />
               </div>
               <h3 className="font-semibold text-sm text-white">Konvertatsiya</h3>
-              <p className="text-xs text-gray-400">JPG/Word → PDF</p>
+              <p className="text-xs text-gray-400">JPG → PDF</p>
             </CardContent>
           </Card>
 
@@ -366,11 +688,25 @@ export default function Documents() {
           <Card
             className="border-0 shadow-lg bg-black/30 backdrop-blur-sm hover:shadow-xl transition-all cursor-pointer animate-fade-in"
             style={{ animationDelay: "100ms" }}
+            onClick={() => setZipDialogOpen(true)}
+          >
+            <CardContent className="p-4 text-center">
+              <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-orange-600/20 flex items-center justify-center border border-orange-600/50">
+                <FileArchive className="h-6 w-6 text-orange-400" />
+              </div>
+              <h3 className="font-semibold text-sm text-white">ZIP Export</h3>
+              <p className="text-xs text-gray-400">Barcha hujjatlar</p>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="border-0 shadow-lg bg-black/30 backdrop-blur-sm hover:shadow-xl transition-all cursor-pointer animate-fade-in"
+            style={{ animationDelay: "150ms" }}
             onClick={() => setViewDialogOpen(true)}
           >
             <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-purple-600/20 flex items-center justify-center border border-purple-600/50">
-                <FolderOpen className="h-6 w-6 text-purple-400" />
+              <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-cyan-600/20 flex items-center justify-center border border-cyan-600/50">
+                <FolderOpen className="h-6 w-6 text-cyan-400" />
               </div>
               <h3 className="font-semibold text-sm text-white">Mening Hujjatlarim</h3>
               <p className="text-xs text-gray-400">Barcha fayllar</p>
@@ -380,7 +716,7 @@ export default function Documents() {
           {isAdmin && (
             <Card
               className="border-0 shadow-lg bg-black/30 backdrop-blur-sm hover:shadow-xl transition-all cursor-pointer animate-fade-in"
-              style={{ animationDelay: "150ms" }}
+              style={{ animationDelay: "200ms" }}
               onClick={() => navigate("/admin/documents")}
             >
               <CardContent className="p-4 text-center">
@@ -404,7 +740,9 @@ export default function Documents() {
           <Card className="border-dashed border-2 border-blue-500/50 bg-black/30">
             <CardContent className="p-8 text-center">
               <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-400 mb-2">Hali hujjatlar yo'q</p>
+              <p className="text-gray-400 mb-2">
+                {currentFolder ? `"${currentFolder}" papkasida hujjatlar yo'q` : "Hali hujjatlar yo'q"}
+              </p>
               <p className="text-xs text-gray-500 mb-4">
                 Ish bilan ta'minlash uchun {REQUIRED_DOCUMENTS.length} ta hujjat talab qilinadi
               </p>
@@ -429,7 +767,7 @@ export default function Documents() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm text-white truncate">
-                        {doc.file_name}
+                        {doc.custom_name || doc.file_name}
                       </p>
                       <p className="text-xs text-gray-400">
                         {documentTypeLabels[doc.file_type]} • {new Date(doc.created_at).toLocaleDateString()}
@@ -454,7 +792,7 @@ export default function Documents() {
                     <div className="flex flex-col gap-1">
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         asChild
                         className="hover:bg-blue-500/20"
                       >
@@ -462,9 +800,23 @@ export default function Documents() {
                           <Eye className="h-4 w-4 text-blue-400" />
                         </a>
                       </Button>
+                      {isAdmin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedDocument(doc);
+                            setNewStatus(doc.status);
+                            setStatusDialogOpen(true);
+                          }}
+                          className="hover:bg-green-500/20"
+                        >
+                          <Edit className="h-4 w-4 text-green-400" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() => handleDelete(doc.id)}
                         className="hover:bg-red-500/20"
                       >
@@ -479,6 +831,42 @@ export default function Documents() {
         )}
       </section>
 
+      {/* Papka yaratish Dialog */}
+      <Dialog open={folderDialogOpen} onOpenChange={setFolderDialogOpen}>
+        <DialogContent className="bg-[#0d0d1e] text-white border-gray-700">
+          <DialogHeader>
+            <DialogTitle>Yangi Papka Yaratish</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Foydalanuvchi uchun papka yarating
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="folder-name" className="text-gray-200">Papka Nomi (Foydalanuvchi ismi)</Label>
+              <Input
+                id="folder-name"
+                type="text"
+                placeholder="Masalan: Alisher_Valiyev"
+                value={folderName}
+                onChange={(e) => setFolderName(e.target.value)}
+                className="mt-2 bg-black/20 border-gray-700 text-white"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Papka nomida bo'sh joy bo'lmasligi kerak
+              </p>
+            </div>
+            <Button
+              variant="telegram"
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+              onClick={handleCreateFolder}
+            >
+              <FolderPlus className="h-4 w-4 mr-2" />
+              Papka Yaratish
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Upload Dialog */}
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent className="bg-[#0d0d1e] text-white border-gray-700">
@@ -486,9 +874,25 @@ export default function Documents() {
             <DialogTitle>Hujjat Yuklash</DialogTitle>
             <DialogDescription className="text-gray-400">
               Hujjatingizni tanlang va turini belgilang
+              {currentFolder && (
+                <span className="block mt-1 text-purple-400">
+                  Papka: {currentFolder}
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label htmlFor="custom-name" className="text-gray-200">Hujjat Nomi (ixtiyoriy)</Label>
+              <Input
+                id="custom-name"
+                type="text"
+                placeholder="Masalan: Pasport_nusxasi"
+                value={customFileName}
+                onChange={(e) => setCustomFileName(e.target.value)}
+                className="mt-2 bg-black/20 border-gray-700 text-white"
+              />
+            </div>
             <div>
               <Label htmlFor="file" className="text-gray-200">Faylni Tanlang</Label>
               <Input
@@ -528,7 +932,9 @@ export default function Documents() {
                 <CardContent className="p-3 flex items-center gap-3">
                   <FileText className="h-5 w-5 text-blue-400" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-white">{selectedFile.name}</p>
+                    <p className="text-sm font-medium truncate text-white">
+                      {customFileName || selectedFile.name}
+                    </p>
                     <p className="text-xs text-gray-400">
                       {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                     </p>
@@ -554,7 +960,7 @@ export default function Documents() {
           <DialogHeader>
             <DialogTitle>Fayl Konvertatsiyasi</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Faylni boshqa formatga o'zgartiring
+              Faylni PDF formatiga o'zgartiring
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -566,36 +972,58 @@ export default function Documents() {
                 </SelectTrigger>
                 <SelectContent className="bg-[#0d0d1e] text-white border-gray-700">
                   <SelectItem value="jpg-to-pdf" className="hover:bg-gray-800">
-                    JPG → PDF
-                  </SelectItem>
-                  <SelectItem value="doc-to-pdf" className="hover:bg-gray-800">
-                    Word → PDF
+                    JPG → PDF (Bitta rasm)
                   </SelectItem>
                   <SelectItem value="merge-pdf" className="hover:bg-gray-800">
-                    PDF larni Birlashtirish
+                    Rasmlarni PDF ga birlashtirish
+                  </SelectItem>
+                  <SelectItem value="doc-to-pdf" className="hover:bg-gray-800" disabled>
+                    Word → PDF (Hozircha mavjud emas)
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="convert-file" className="text-gray-200">Faylni Tanlang</Label>
+              <Label htmlFor="convert-file" className="text-gray-200">
+                {conversionType === "merge-pdf" ? "Rasmlarni Tanlang (ko'p fayl)" : "Faylni Tanlang"}
+              </Label>
               <Input
                 id="convert-file"
                 type="file"
-                accept={conversionType === "jpg-to-pdf" ? ".jpg,.jpeg,.png" : conversionType === "doc-to-pdf" ? ".doc,.docx" : ".pdf"}
-                onChange={handleFileChange}
+                accept={conversionType === "jpg-to-pdf" ? ".jpg,.jpeg,.png" : conversionType === "doc-to-pdf" ? ".doc,.docx" : ".jpg,.jpeg,.png,.pdf"}
+                multiple={conversionType === "merge-pdf"}
+                onChange={conversionType === "merge-pdf" ? handleMultipleFilesChange : handleFileChange}
                 className="mt-2 bg-black/20 border-gray-700 text-white"
               />
+              <p className="text-xs text-gray-400 mt-1">
+                {conversionType === "merge-pdf" 
+                  ? "Bir nechta rasm fayllarini tanlang (JPG, PNG)"
+                  : "Bitta fayl tanlang"
+                }
+              </p>
             </div>
-            {selectedFile && (
+            {(selectedFile || selectedFiles) && (
               <Card className="bg-green-600/20 border-green-500/50">
-                <CardContent className="p-3 flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-green-400" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-white">{selectedFile.name}</p>
-                    <p className="text-xs text-gray-400">
-                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-green-400" />
+                    <div className="flex-1 min-w-0">
+                      {selectedFiles ? (
+                        <>
+                          <p className="text-sm font-medium text-white">{selectedFiles.length} ta fayl tanlandi</p>
+                          <p className="text-xs text-gray-400">
+                            {Array.from(selectedFiles).map(f => f.name).join(", ")}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium truncate text-white">{selectedFile?.name}</p>
+                          <p className="text-xs text-gray-400">
+                            {selectedFile && (selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -604,9 +1032,140 @@ export default function Documents() {
               variant="telegram"
               className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
               onClick={handleConversion}
-              disabled={!selectedFile || isConverting}
+              disabled={(!selectedFile && !selectedFiles) || isConverting}
             >
-              {isConverting ? "Konvertatsiya qilinmoqda..." : "Konvertatsiya qilish"}
+              {isConverting ? "Konvertatsiya qilinmoqda..." : "PDF ga Aylantirish"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Admin: Status o'zgartirish Dialog */}
+      {isAdmin && (
+        <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+          <DialogContent className="bg-[#0d0d1e] text-white border-gray-700">
+            <DialogHeader>
+              <DialogTitle>Hujjat Holatini O'zgartirish</DialogTitle>
+              <DialogDescription className="text-gray-400">
+                {selectedDocument?.file_name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-gray-200">Yangi Holat</Label>
+                <Select value={newStatus} onValueChange={(v) => setNewStatus(v as DocumentStatus)}>
+                  <SelectTrigger className="mt-2 bg-black/20 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0d0d1e] text-white border-gray-700">
+                    <SelectItem value="pending" className="hover:bg-gray-800">
+                      🔄 Tekshirilmoqda
+                    </SelectItem>
+                    <SelectItem value="approved" className="hover:bg-gray-800">
+                      ✅ Tasdiqlangan
+                    </SelectItem>
+                    <SelectItem value="incomplete" className="hover:bg-gray-800">
+                      ⚠️ To'liq emas
+                    </SelectItem>
+                    <SelectItem value="rejected" className="hover:bg-gray-800">
+                      ❌ Rad etilgan
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {(newStatus === "rejected" || newStatus === "incomplete") && (
+                <div>
+                  <Label className="text-gray-200">
+                    {newStatus === "rejected" ? "Rad etilish sababi" : "Admin izohi"}
+                  </Label>
+                  <Textarea
+                    placeholder={
+                      newStatus === "rejected" 
+                        ? "Nima uchun rad etildi..." 
+                        : "Qanday o'zgartirish kerak..."
+                    }
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
+                    className="mt-2 bg-black/20 border-gray-700 text-white min-h-[100px]"
+                  />
+                </div>
+              )}
+              <Button
+                variant="telegram"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                onClick={handleUpdateStatus}
+              >
+                Holatni Yangilash
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* ZIP Export Dialog */}
+      <Dialog open={zipDialogOpen} onOpenChange={setZipDialogOpen}>
+        <DialogContent className="bg-[#0d0d1e] text-white border-gray-700">
+          <DialogHeader>
+            <DialogTitle>Hujjatlarni ZIP qilish</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Barcha hujjatlarni ZIP arxivga joylashtiring
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-3 bg-blue-600/20 border border-blue-500/50 rounded-lg">
+              <p className="text-sm text-white">
+                <strong>{documents.length} ta hujjat</strong> ZIP qilinadi
+              </p>
+              {currentFolder && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Papka: {currentFolder}
+                </p>
+              )}
+            </div>
+            
+            <div className="p-3 bg-gray-800 rounded-lg space-y-3">
+              <h4 className="text-sm font-medium text-white">Telegram Botga Yuborish (ixtiyoriy)</h4>
+              <div>
+                <Label htmlFor="bot-token" className="text-gray-200 text-xs">Bot Token</Label>
+                <Input
+                  id="bot-token"
+                  type="text"
+                  placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+                  value={telegramBotToken}
+                  onChange={(e) => setTelegramBotToken(e.target.value)}
+                  className="mt-1 bg-black/20 border-gray-700 text-white text-sm"
+                />
+              </div>
+              <div>
+                <Label htmlFor="chat-id" className="text-gray-200 text-xs">Chat ID</Label>
+                <Input
+                  id="chat-id"
+                  type="text"
+                  placeholder="123456789"
+                  value={telegramChatId}
+                  onChange={(e) => setTelegramChatId(e.target.value)}
+                  className="mt-1 bg-black/20 border-gray-700 text-white text-sm"
+                />
+              </div>
+              <p className="text-xs text-gray-400">
+                Token va Chat ID bo'sh qoldirilsa, faqat yuklab olinadi
+              </p>
+            </div>
+
+            <Button
+              variant="telegram"
+              className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800"
+              onClick={handleExportZIP}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                "ZIP qilinmoqda..."
+              ) : (
+                <>
+                  <FileArchive className="h-4 w-4 mr-2" />
+                  {telegramBotToken && telegramChatId ? "ZIP va Botga Yuborish" : "ZIP Yuklab Olish"}
+                </>
+              )}
             </Button>
           </div>
         </DialogContent>
@@ -617,6 +1176,9 @@ export default function Documents() {
         <DialogContent className="max-h-[80vh] overflow-y-auto bg-[#0d0d1e] text-white border-gray-700">
           <DialogHeader>
             <DialogTitle>Mening Hujjatlarim ({documents.length})</DialogTitle>
+            {currentFolder && (
+              <p className="text-sm text-gray-400">Papka: {currentFolder}</p>
+            )}
           </DialogHeader>
           <div className="space-y-2">
             {documents.map((doc) => (
@@ -626,7 +1188,9 @@ export default function Documents() {
                     <FileText className="h-5 w-5 text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate text-white">{doc.file_name}</p>
+                    <p className="font-medium text-sm truncate text-white">
+                      {doc.custom_name || doc.file_name}
+                    </p>
                     <div className="flex items-center gap-2 text-xs text-gray-400">
                       <span>{documentTypeLabels[doc.file_type]}</span>
                       <span>•</span>
@@ -634,16 +1198,28 @@ export default function Documents() {
                       <span className="capitalize">{statusLabels[doc.status]}</span>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    asChild
-                    className="hover:bg-blue-500/20"
-                  >
-                    <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                      <Eye className="h-4 w-4 text-blue-400" />
-                    </a>
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      className="hover:bg-blue-500/20"
+                    >
+                      <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
+                        <Eye className="h-4 w-4 text-blue-400" />
+                      </a>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      className="hover:bg-green-500/20"
+                    >
+                      <a href={doc.file_url} download>
+                        <Download className="h-4 w-4 text-green-400" />
+                      </a>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
