@@ -136,7 +136,7 @@ export default function Chat() {
 
 
   const getMainMenuButtons = (): ButtonOption[] => [
-    { text: "🇰🇷 Universitetlar Ro'yxati", command: 'CMD_MENU_UNIVERSITIES' },
+    { text: "🇰🇷 Universitetlar Ro'yxati", command: 'CMD_MENU_UNI' },
     { text: "💰 Xarajatlar & Narxlar", command: 'CMD_MENU_PRICES' },
     { text: "❓ Tez-tez So'raladigan Savollar (FAQ)", command: 'CMD_MENU_FAQ' },
     { text: "📞 Kompaniya bilan Aloqa", command: 'CMD_MENU_CONTACT' },
