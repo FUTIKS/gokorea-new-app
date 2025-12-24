@@ -84,7 +84,7 @@ export default function Auth() {
     // Telefon raqamini validatsiya qilish
     const cleanedPhone = phone.replace(/\D/g, ""); // Faqat raqamlarni qoldiramiz
     // O'zbekistondagi mobil va shahar telefon kodlari
-    const uzbekPhoneRegex = /^\+998(?:33|71|88|90|91|93|94|95|97|98|99)\d{7}$/;
+    const uzbekPhoneRegex = /^\+998(?:33|71|88|90|91|93|94|95|97|98|99|77)\d{7}$/;
 
     if (!uzbekPhoneRegex.test("+" + cleanedPhone)) {
       toast({
