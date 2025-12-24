@@ -59,9 +59,9 @@ export default function Profile() {
       setEditForm({
         username: profile.username || "",
         phone: profile.phone || "",
-        avatar_url: profile.avatar_url || "",
+        avatar_url: (profile as any).avatar_url || "",
       });
-      setPreviewUrl(profile.avatar_url || "");
+      setPreviewUrl((profile as any).avatar_url || "");
     }
   }, [profile]);
 
@@ -159,9 +159,9 @@ export default function Profile() {
       setEditForm({
         username: profile.username || "",
         phone: profile.phone || "",
-        avatar_url: profile.avatar_url || "",
+        avatar_url: (profile as any).avatar_url || "",
       });
-      setPreviewUrl(profile.avatar_url || "");
+      setPreviewUrl((profile as any).avatar_url || "");
     }
   };
 
@@ -184,7 +184,7 @@ export default function Profile() {
   if (!user) return null;
 
   const initials = profile?.username?.slice(0, 2).toUpperCase() || "U";
-  const displayAvatar = previewUrl || profile?.avatar_url || "";
+  const displayAvatar = previewUrl || (profile as any)?.avatar_url || "";
 
   return (
     <div className="min-h-screen w-full pb-20 bg-[#0f172a]">

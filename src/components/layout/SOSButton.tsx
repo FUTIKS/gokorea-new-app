@@ -88,7 +88,7 @@ export const SOSButton = () => {
   return (
     <>
       <Button
-        variant="sos"
+        variant="destructive"
         size="icon"
         className="fixed right-4 top-4 z-50 rounded-full shadow-lg"
         onClick={() => setIsOpen(true)}

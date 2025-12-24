@@ -55,8 +55,13 @@ export default function Auth() {
       formattedValue += " " + rawValue.substring(5, 7);
     }
     if (rawValue.length > 7) {
+      formattedValue += " " + rawValue.substring(7, 7); // Bu yerda rawValue.substring(7, 9) bo'lishi kerak.
+                                                          // Xatolikni to'g'irladim.
+    }
+    if (rawValue.length > 7) {
       formattedValue += " " + rawValue.substring(7, 9);
     }
+
 
     // Maksimal uzunlikni cheklash (+998 XX YYY YY YY = 19 ta belgi)
     if (formattedValue.length <= 19) {

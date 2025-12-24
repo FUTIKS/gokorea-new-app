@@ -1,14 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-// import { supabase } from "@/integrations/supabase/client"; // Agar ishlatilsa
+// import { supabase } from "@/integrations/supabase/client"; // Chat komponentida to'g'ridan-to'g'ri ishlatilmagani uchun izohga olindi
+// import { useToast } from "@/hooks/use-toast"; // Chat komponentida hozircha ishlatilmagani uchun izohga olindi
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// Card komponenti endi xabarlar uchun ishlatilmaydi. QuickReplies ichida qolishi mumkin.
-// import { Card, CardContent } from "@/components/ui/card";
-// import { useToast } from "@/hooks/use-toast"; // Agar ishlatilsa
 import {
-  Send, Mic, MicOff, Bot, User, Volume2,
+  Send, Mic, MicOff, Bot, User,
   Image as ImageIcon, CircleDot,
   Paperclip, Smile, Check, CheckCheck // CheckCheck ham qo'shildi "o'qilgan" uchun
 } from "lucide-react";
@@ -21,6 +19,7 @@ import { universities } from "@/data/universities";
 import { prices } from "@/data/prices";
 import { faq } from "@/data/faq";
 import { contact } from "@/data/contact";
+
 
 // =========================================================================================
 // INTERFACES & TURLAR
@@ -56,7 +55,7 @@ const QuickReplies = ({ replies, onClick, isSending }: { replies: ButtonOption[]
         {replies.map((reply) => (
             <Button
                 key={reply.command}
-                variant="telegram"
+                variant="default"
                 size="sm"
                 onClick={() => onClick(reply.command, reply.text)}
                 disabled={isSending}
@@ -93,12 +92,12 @@ const formatRichText = (text: string) => {
 export default function Chat() {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  // const { toast } = useToast();
+  // const { toast } = useToast(); // Hozircha ishlatilmaydi
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
-  // const [conversationId, setConversationId] = useState<string | null>(null);
+  // const [conversationId, setConversationId] = useState<string | null>(null); // Hozircha ishlatilmaydi
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
@@ -109,14 +108,14 @@ export default function Chat() {
 
 
   const [voiceSupported, setVoiceSupported] = useState(false);
-  // const [autoSpeakEnabled, setAutoSpeakEnabled] = useState(true);
-  // const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
+  // const [autoSpeakEnabled, setAutoSpeakEnabled] = useState(true); // Hozircha ishlatilmaydi
+  // const [isMicrophoneActive, setIsMicrophoneActive] = useState(false); // Hozircha ishlatilmaydi
 
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   const loadOrCreateConversation = async () => {
-    // if (!user) return;
+    // if (!user) return; // Agar user tekshiruvi muhim bo'lsa, sharhdan oling
     setIsLoading(true);
 
     const welcomeMsg: Message = {
@@ -219,7 +218,7 @@ export default function Chat() {
       is_ai: false,
       message_type: type,
       created_at: new Date().toISOString(),
-      senderName: "Sevinchm", // Rasmga mos ravishda "Sevinchm"
+      senderName: "Men", // Yuboruvchi nomi "Men" deb o'zgartirildi
       status: 'sent', // Yuborilgan status
     };
 
@@ -250,7 +249,7 @@ export default function Chat() {
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (inputValue.trim()) sendMessage(inputValue, "text"); };
 
 
-  useEffect(() => { loadOrCreateConversation(); }, [user]);
+  useEffect(() => { loadOrCreateConversation(); }, [user]); // user dependency qo'shildi
   useEffect(() => { scrollToBottom(); }, [messages]);
 
 
@@ -317,7 +316,7 @@ export default function Chat() {
                     "text-xs mb-1 font-semibold",
                     isMyMessage ? "text-blue-200 text-right" : "text-purple-300 text-left"
                   )}>
-                    {message.senderName} 
+                    {message.senderName}
                   </div>
                 )}
                 {/* Agar rasm bo'lsa */}
@@ -412,13 +411,13 @@ export default function Chat() {
 
           {/* Mikrofon / Yuborish tugmasi */}
           {inputValue.trim() ? (
-            <Button type="submit" variant="telegram" size="icon" disabled={isSending} className="bg-blue-600/90 hover:bg-blue-700/90 rounded-full w-10 h-10"> {/* Telegram uslubidagi dumaloq tugma */}
+            <Button type="submit" variant="default" size="icon" disabled={isSending} className="bg-blue-600/90 hover:bg-blue-700/90 rounded-full w-10 h-10"> {/* Telegram uslubidagi dumaloq tugma */}
               <Send className="h-5 w-5" />
             </Button>
           ) : (
             <Button
               type="button"
-              variant="telegram"
+              variant="default"
               size="icon"
               onClick={() => { setIsListening(!isListening); }}
               disabled={isSending || !voiceSupported}
@@ -433,4 +432,3 @@ export default function Chat() {
     </div>
   );
 }
-

@@ -88,17 +88,26 @@ export default function CalculatorPage() {
     console.log("🔍 DEBUG - authLoading:", authLoading);
   }, [user, isAdmin, authLoading]);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, authLoading, navigate]);
+  // BU YERDA FOYDALANUVCHINI /AUTH GA YO'NALTIRUVCHI MANTIQ BOR EDI.
+  // AGAR "CalculatorPage" SAHIFASI TIZIMGA KIRISHNI TALAB QILMASA, BU BLOKNI O'CHIRING.
+  // AGAR TALAB QILSA, BU BLOKNI QAYTA YOQING.
+  // Sizning loyihangizda global yo'naltirish muammosi shu sababli bo'lishi mumkin.
+  // useEffect(() => {
+  //   if (!authLoading && !user) {
+  //     navigate("/auth");
+  //   }
+  // }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {
       loadCalculations();
+    } else {
+      // Agar foydalanuvchi tizimga kirmagan bo'lsa va bu sahifada hisob-kitoblar ko'rsatilmasligi kerak bo'lsa,
+      // yuklanish holatini tugatish va hisob-kitoblarni tozalashimiz kerak.
+      setCalculations([]);
+      setIsLoading(false);
     }
-  }, [user]);
+  }, [user]); // user ga bog'liq qilib loadCalculations funksiyasini chaqiramiz
 
   const loadCalculations = async () => {
     if (!user) return;
@@ -155,7 +164,7 @@ export default function CalculatorPage() {
     if (!user || !amount) {
       toast({
         title: "Diqqat",
-        description: "Iltimos, miqdorni kiriting",
+        description: "Iltimos, miqdorni kiriting va tizimga kiring",
         variant: "destructive",
       });
       return;
@@ -210,6 +219,14 @@ export default function CalculatorPage() {
   };
 
   const deleteCalculation = async (id: string) => {
+    if (!user) { // Delete qilish uchun ham user kerak
+      toast({
+        title: "Diqqat",
+        description: "Tizimga kiring",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
       const { error } = await supabase
         .from("calculations")
@@ -237,7 +254,9 @@ export default function CalculatorPage() {
       .reduce((sum, c) => sum + Number(c.amount), 0);
   };
 
-  if (authLoading || isLoading) {
+  // Agar user yo'q bo'lsa va authLoading tugagan bo'lsa, xarajatlar va profilsiz ishlay oladi.
+  // Shuning uchun bu yerda faqat authLoading ni kutamiz.
+  if (authLoading) { 
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0A122A]">
         <div className="flex flex-col items-center gap-3">
@@ -279,7 +298,35 @@ export default function CalculatorPage() {
               <p className="text-gray-400 text-sm mt-1">Hisoblagich va Xarajatlar</p>
             </div>
             
-           
+            <div className="flex flex-col gap-2">
+              <div className="text-xs text-gray-400 text-right">
+                Admin: {isAdmin ? "✅ HA" : "❌ YO'Q"}
+              </div>
+              {isAdmin && (
+                <Button
+                  size="sm"
+                  onClick={() => navigate("/admin/dashboard")} // App.tsx dagi routega moslashtirildi
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Admin
+                </Button>
+              )}
+              {/* Bu "Test Admin" tugmasi debug uchun. Agar kerak bo'lmasa o'chirishingiz mumkin. */}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  console.log("🔵 Test Admin tugmasi bosildi!");
+                  console.log("🔵 Navigatsiya: /admin");
+                  navigate("/admin"); // Bu AdminLogin sahifasiga yo'naltiradi
+                }}
+                className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Test Admin
+              </Button>
+            </div>
           </div>
         </header>
 
@@ -446,36 +493,43 @@ export default function CalculatorPage() {
                 Oxirgi xarajatlar
               </h3>
               <div className="space-y-2">
-                {calculations.slice(0, 8).map((calc) => {
-                  const cat = categories.find((c) => c.value === calc.category);
-                  const Icon = cat?.icon || MoreHorizontal;
-                  const curr = currencies.find(c => c.code === calc.currency);
-                  return (
-                    <Card key={calc.id} className="border-0 shadow-lg bg-black/30">
-                      <CardContent className="p-3 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center border border-blue-500/50">
-                          <Icon className="h-5 w-5 text-blue-400" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-white">
-                            {calc.amount} {curr?.flag} {curr?.code}
-                          </p>
-                          <p className="text-xs text-gray-400 truncate">
-                            {calc.description || cat?.label}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => deleteCalculation(calc.id)}
-                          className="hover:bg-red-500/20 flex-shrink-0"
-                        >
-                          <Trash2 className="h-4 w-4 text-red-400" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {/* Agar user tizimga kirmagan bo'lsa, xarajatlar ro'yxatini ko'rsatmaymiz */}
+                {user ? (
+                  calculations.slice(0, 8).map((calc) => {
+                    const cat = categories.find((c) => c.value === calc.category);
+                    const Icon = cat?.icon || MoreHorizontal;
+                    const curr = currencies.find(c => c.code === calc.currency);
+                    return (
+                      <Card key={calc.id} className="border-0 shadow-lg bg-black/30">
+                        <CardContent className="p-3 flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center border border-blue-500/50">
+                            <Icon className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-white">
+                              {calc.amount} {curr?.flag} {curr?.code}
+                            </p>
+                            <p className="text-xs text-gray-400 truncate">
+                              {calc.description || cat?.label}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteCalculation(calc.id)}
+                            className="hover:bg-red-500/20 flex-shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-400" />
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                ) : (
+                  <p className="text-gray-400 text-center text-sm mt-4">
+                    Xarajatlarni ko'rish va saqlash uchun tizimga kiring.
+                  </p>
+                )}
               </div>
             </TabsContent>
 

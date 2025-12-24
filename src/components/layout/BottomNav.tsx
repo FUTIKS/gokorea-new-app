@@ -16,15 +16,8 @@ export const BottomNav = () => {
   const location = useLocation();
 
   // /auth sahifasida pastki navigatsiyani yashirishni davom ettiramiz
-  if (location.pathname === "/auth" || location.pathname.startsWith("/admin")) {
-    // Admin paneliga kirganda ham pastki navigatsiyani yashirish kerak bo'lishi mumkin.
-    // Agar /admin/dashboard kabi ichki admin sahifalarida ham navigatsiya kerak bo'lmasa,
-    // shartni kengaytirishimiz mumkin. Hozircha faqat /auth uchun null qaytaradi.
-    // Lekin sizning talabingizga ko'ra, /admin ga o'tishimiz kerak, shuning uchun
-    // admin sahifasida navigatsiya ko'rinishi kerak.
-    // Agar "Admin Panel" tugmasi bosilganda ham yashirinish kerak bo'lsa,
-    // quyidagi if shartini o'zgartirish kerak:
-    // if (location.pathname === "/auth") return null;
+  if (location.pathname === "/auth") { // Faqat /auth uchun yashiramiz
+    return null;
   }
   
   // E'tibor bering: "Admin Panel" tugmasi endi /admin ga yo'naltiradi,
