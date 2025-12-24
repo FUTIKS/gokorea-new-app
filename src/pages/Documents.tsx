@@ -44,7 +44,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { jsPDF } from "jspdf";
 
-type DocumentType = "passport" | "id_card" | "contract" | "medical" | "diploma" | "reference" | "other";
+type DocumentType = "passport" | "id_card" | "contract" | "medical" | "other";
 type DocumentStatus = "pending" | "approved" | "rejected" | "incomplete";
 
 interface Document {
@@ -72,8 +72,6 @@ const documentTypeLabels: Record<DocumentType, string> = {
   id_card: "ID Karta",
   contract: "Shartnoma",
   medical: "Tibbiy Hujjat",
-  diploma: "Diploma",
-  reference: "Ma'lumotnoma",
   other: "Boshqa",
 };
 
@@ -81,9 +79,9 @@ const documentTypeLabels: Record<DocumentType, string> = {
 const REQUIRED_DOCUMENTS: DocumentType[] = [
   "passport",
   "id_card", 
-  "diploma",
   "medical",
-  "contract"
+  "contract",
+  "other"
 ];
 
 const statusLabels: Record<DocumentStatus, string> = {
@@ -161,7 +159,7 @@ export default function Documents() {
     if (!user) return;
     
     try {
-      let query = supabase
+      let query: any = supabase
         .from("documents")
         .select("*")
         .eq("user_id", user.id);
@@ -747,7 +745,6 @@ export default function Documents() {
                 Ish bilan ta'minlash uchun {REQUIRED_DOCUMENTS.length} ta hujjat talab qilinadi
               </p>
               <Button
-                variant="telegram"
                 className="mt-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
                 onClick={() => setUploadDialogOpen(true)}
               >
@@ -856,7 +853,6 @@ export default function Documents() {
               </p>
             </div>
             <Button
-              variant="telegram"
               className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
               onClick={handleCreateFolder}
             >
@@ -943,7 +939,6 @@ export default function Documents() {
               </Card>
             )}
             <Button
-              variant="telegram"
               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
               onClick={handleUpload}
               disabled={!selectedFile || isUploading}
@@ -1029,7 +1024,6 @@ export default function Documents() {
               </Card>
             )}
             <Button
-              variant="telegram"
               className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
               onClick={handleConversion}
               disabled={(!selectedFile && !selectedFiles) || isConverting}
@@ -1091,7 +1085,6 @@ export default function Documents() {
                 </div>
               )}
               <Button
-                variant="telegram"
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
                 onClick={handleUpdateStatus}
               >
@@ -1153,7 +1146,6 @@ export default function Documents() {
             </div>
 
             <Button
-              variant="telegram"
               className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800"
               onClick={handleExportZIP}
               disabled={isExporting}

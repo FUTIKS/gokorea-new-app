@@ -15,11 +15,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Calculator, 
-  Car, 
-  Utensils, 
-  Briefcase, 
+import {
+  Calculator,
+  Car,
+  Utensils,
+  Briefcase,
   MoreHorizontal,
   Save,
   Trash2,
@@ -28,7 +28,7 @@ import {
   Coins,
   DollarSign,
   Euro,
-  Users,
+  Users, // Bu ikona endi "Admin" tugmasi bo'lmagani uchun kerak bo'lmasligi mumkin, lekin qolishi ham mumkin.
 } from "lucide-react";
 
 interface Calculation {
@@ -68,15 +68,15 @@ export default function CalculatorPage() {
 
   const [calculations, setCalculations] = useState<Calculation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [display, setDisplay] = useState("0");
   const [equation, setEquation] = useState("");
-  
+
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("other");
   const [currency, setCurrency] = useState("USD");
   const [description, setDescription] = useState("");
-  
+
   const [convertAmount, setConvertAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("UZS");
@@ -111,7 +111,7 @@ export default function CalculatorPage() {
 
   const loadCalculations = async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
         .from("calculations")
@@ -256,7 +256,7 @@ export default function CalculatorPage() {
 
   // Agar user yo'q bo'lsa va authLoading tugagan bo'lsa, xarajatlar va profilsiz ishlay oladi.
   // Shuning uchun bu yerda faqat authLoading ni kutamiz.
-  if (authLoading) { 
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0A122A]">
         <div className="flex flex-col items-center gap-3">
@@ -288,7 +288,7 @@ export default function CalculatorPage() {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden pb-20 bg-[#0A122A]">
-      
+
       <div className="relative z-10">
 
         <header className="pt-12 pb-6 px-4">
@@ -297,36 +297,15 @@ export default function CalculatorPage() {
               <h1 className="text-2xl font-bold text-white">Hisob-kitob</h1>
               <p className="text-gray-400 text-sm mt-1">Hisoblagich va Xarajatlar</p>
             </div>
-            
-            <div className="flex flex-col gap-2">
+
+            {/* Bu div endi faqat Admin holati haqida ma'lumotni ko'rsatadi, tugmalar olib tashlandi */}
+            {isAdmin && ( // Faqat admin bo'lsagina ko'rsatilsin
               <div className="text-xs text-gray-400 text-right">
                 Admin: {isAdmin ? "✅ HA" : "❌ YO'Q"}
               </div>
-              {isAdmin && (
-                <Button
-                  size="sm"
-                  onClick={() => navigate("/admin/dashboard")} // App.tsx dagi routega moslashtirildi
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Admin
-                </Button>
-              )}
-              {/* Bu "Test Admin" tugmasi debug uchun. Agar kerak bo'lmasa o'chirishingiz mumkin. */}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  console.log("🔵 Test Admin tugmasi bosildi!");
-                  console.log("🔵 Navigatsiya: /admin");
-                  navigate("/admin"); // Bu AdminLogin sahifasiga yo'naltiradi
-                }}
-                className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Test Admin
-              </Button>
-            </div>
+            )}
+            {/* Admin Panel tugmasi shu yerdan olib tashlandi */}
+            {/* Test Admin tugmasi shu yerdan olib tashlandi */}
           </div>
         </header>
 
@@ -354,7 +333,7 @@ export default function CalculatorPage() {
                     <p className="text-sm text-gray-400 h-5 text-right">{equation}</p>
                     <p className="text-4xl font-bold text-right text-white break-all">{display}</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-4 gap-2 mb-2">
                     <Button
                       variant="destructive"
@@ -378,7 +357,7 @@ export default function CalculatorPage() {
                         key={btn.value}
                         className={`h-16 text-2xl font-bold transition-all ${
                           btn.type === "operator" || btn.type === "equals"
-                            ? "bg-blue-600/80 hover:bg-blue-700/90 text-white" 
+                            ? "bg-blue-600/80 hover:bg-blue-700/90 text-white"
                             : "bg-gray-800/50 hover:bg-gray-700/60 text-white"
                         }`}
                         onClick={() => {
@@ -455,8 +434,8 @@ export default function CalculatorPage() {
                     className="h-11 bg-black/40 border-gray-700 text-white"
                   />
 
-                  <Button 
-                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-base font-semibold" 
+                  <Button
+                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-base font-semibold"
                     onClick={saveExpense}
                   >
                     <Save className="h-5 w-5 mr-2" />
@@ -571,9 +550,9 @@ export default function CalculatorPage() {
                   </div>
 
                   <div className="flex justify-center">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={swapCurrencies}
                       className="bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 w-12 h-12"
                     >
@@ -608,8 +587,8 @@ export default function CalculatorPage() {
                     </div>
                   </div>
 
-                  <Button 
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-base font-semibold" 
+                  <Button
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-base font-semibold"
                     onClick={handleConvert}
                   >
                     Hisoblash

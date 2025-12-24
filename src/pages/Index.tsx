@@ -1,13 +1,23 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react"; 
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  MessageCircle, 
-  FileText, 
-  Calculator, 
-  Shield, 
+
+declare global {
+  interface Window {
+    Telegram: {
+      WebApp: {
+        MainButton: any;
+      };
+    };
+  }
+}
+import {
+  MessageCircle,
+  FileText,
+  Calculator,
+  Shield,
   ArrowRight,
   Sparkles,
   Clock,
@@ -28,7 +38,7 @@ const features = [
     icon: FileText,
     title: "Hujjatlar",
     description: "Fayllarni yuklash, boshqarish va konvertatsiya qilish",
-    path: "/documents",
+    path: "/admin", // <--- BU YERDA O'ZGARTIRILDI! "Hujjatlar" tugmasi endi /admin ga yo'naltiradi.
     gradient: "from-green-600 to-green-700",
   },
   {
@@ -57,7 +67,7 @@ const stats = [
 export default function Index() {
   const { user, profile, isLoading, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const mainButtonRef = useRef(window.Telegram.WebApp.MainButton); 
+  const mainButtonRef = useRef((window as any).Telegram?.WebApp?.MainButton);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -90,8 +100,8 @@ export default function Index() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen w-full text-white"> 
-      
+    <div className="min-h-screen w-full text-white">
+
       {/* Header */}
       <header className="pt-16 pb-8 px-4 relative">
         <div className="text-center animate-fade-in text-white">
@@ -104,13 +114,13 @@ export default function Index() {
         </div>
 
         <div className="absolute top-16 right-4">
-            <Button 
-                variant="ghost" 
-                size="icon" 
+            <Button
+                variant="ghost"
+                size="icon"
                 className="text-yellow-400 hover:text-yellow-500 relative"
                 onClick={() => alert("Sizning Premium obunangiz 3 kundan keyin tugaydi!")}
             >
-                <AlertTriangle className="h-6 w-6" /> 
+                <AlertTriangle className="h-6 w-6" />
                 <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
             </Button>
         </div>
@@ -170,15 +180,15 @@ export default function Index() {
         </h2>
         <div className="flex gap-3">
           <Button
-            variant="telegram"
+            variant="outline"
             className="flex-1 bg-black/20 border-white/20 hover:bg-black/30 text-white"
-            onClick={() => navigate("/documents")}
+            onClick={() => navigate("/documents")} // Bu tugma `/documents` ga yo'naltirishda davom etadi
           >
             <FileCheck className="h-4 w-4 mr-2" />
             Hujjat Yuklash
           </Button>
           <Button
-            variant="telegram"
+            variant="outline"
             className="flex-1 bg-black/20 border-white/20 hover:bg-black/30 text-white"
             onClick={() => navigate("/calculator")}
           >
@@ -187,7 +197,7 @@ export default function Index() {
           </Button>
         </div>
       </section>
-      
+
     </div>
   );
 }

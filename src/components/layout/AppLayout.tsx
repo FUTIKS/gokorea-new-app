@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
-import { SOSButton } from "./SOSButton";
+
 // import Galaxy from "@/components/ui/Galaxy/Galaxy"; // O'chirildi!
 
 interface AppLayoutProps {
@@ -23,7 +23,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </div> */}
 
       <div className="relative z-20">
-        <SOSButton />
+        
       </div>
 
       <main className="relative z-10 pb-20">
